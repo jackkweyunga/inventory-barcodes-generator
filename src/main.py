@@ -5,6 +5,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 import pathlib
 import os
+import sys
 
 base_dir = pathlib.Path(__file__).parent.parent
 
@@ -47,7 +48,9 @@ class Bars:
         number = f"{manufacturer_number}{product_number}"
         code = self.make_upc(number) # the barcode
 
-        if type(logo) == Image:
+        # print(type(logo))
+
+        if logo != '':
             output = self.add_details_to_image(code, number, name, logo)
             code_b64 = self.make_b64(output) # the barcode in b64
             return code_b64
@@ -60,10 +63,18 @@ class Bars:
 
     def make_upc(self, number):
 
-        upc = barcode.get_barcode_class('upca')
-        code = upc(number, ImageWriter())
+        try:
+            upc = barcode.get_barcode_class('upca')
+            code = upc(number, ImageWriter())
+            code = code.render()
 
-        return code
+            return code
+        except barcode.errors.NumberOfDigitsError as e:
+            print('\n\n')
+            print(e)
+            print('\n\n')
+            sys.exit()
+
 
     def make_b64(self, image):
         buffered = BytesIO()
@@ -85,19 +96,43 @@ class Bars:
 
         output = Image.new('RGBA', (int(img1.size[0]*1.5), img1.size[1] + 100 ), (250, 250, 250, 0))
 
-        img2.thumbnail((int(img1.size[0]/2-80), img1.size[1]-80))
-        img1.thumbnail((img1.size[0], img1.size[1]-100))
+        t_size = 80
+        t_height = 100
 
-        output.paste(img2, (0,100))
-        output.paste(img1, (int(img1.size[0]/2),100))
+        img2.thumbnail((int(img1.size[0]/2-t_size), img1.size[1]-t_size))
+        img1.thumbnail((img1.size[0], img1.size[1]-t_height))
+
+        output.paste(img2, (0,t_height))
+        output.paste(img1, (int(img1.size[0]/2),t_height))
 
         draw = ImageDraw.Draw(output, 'RGBA')
 
         text = name.upper()
 
-        font = ImageFont.truetype(os.path.join(base_dir, 'resources/fonts/Comfortaa/static/Comfortaa-Bold.ttf'), 80)
+        font = ImageFont.truetype(os.path.join(base_dir, 'resources/fonts/Comfortaa/static/Comfortaa-Bold.ttf'), t_size)
         draw.text((0,0), text, (0,0,0), font=font, spacing=1.5, align='right')
-        draw.text((img2.size[0], output.size[1]-100), number, (0,0,0), font=font, spacing=30, align='right')
+        draw.text((img2.size[0], output.size[1]-t_height), number, (0,0,0), font=font, spacing=30, align='right')
 
         return output
 
+
+# tests
+
+b = Bars()
+
+logo = os.path.join(base_dir, 'resources/images/udsm-logo.jpg')
+
+x = b.generate(20000, 286770, 'Kinyerezi shop', logo_path=logo)
+
+x = b.make_image_from_b64(x)
+
+# print(x)
+
+x.show()
+
+
+# upc = barcode.get_barcode_class('upca')
+
+# code = upc('23332114343', ImageWriter())
+
+# print(code.render())
