@@ -99,7 +99,7 @@ class Bars:
         img2.thumbnail((int(img1.size[0]), img1.size[1]))
         img1.thumbnail((img1.size[0], img1.size[1]))
 
-        output = Image.new('RGBA', (int(img1.size[0]+img2.size[0]), img1.size[1]+t_height ), (250, 250, 250, 1))
+        output = Image.new('RGBA', (int(img1.size[0]+img2.size[0]), img1.size[1]+t_height ), (250, 250, 250, 0))
 
         output.paste(img2, (0,t_height))
         output.paste(img1, (int(img1.size[0]/2),t_height))
