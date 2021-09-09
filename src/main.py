@@ -93,14 +93,13 @@ class Bars:
     def add_details_to_image(self, barcode_image, number, name, logo):
         img1 = barcode_image
         img2 = logo
+        t_size = 50
+        t_height = 40
 
-        output = Image.new('RGBA', (int(img1.size[0]*1.5), img1.size[1] + 100 ), (250, 250, 250, 0))
+        img2.thumbnail((int(img1.size[0]), img1.size[1]))
+        img1.thumbnail((img1.size[0], img1.size[1]))
 
-        t_size = 80
-        t_height = 100
-
-        img2.thumbnail((int(img1.size[0]/2-t_size), img1.size[1]-t_size))
-        img1.thumbnail((img1.size[0], img1.size[1]-t_height))
+        output = Image.new('RGBA', (int(img1.size[0]+img2.size[0]), img1.size[1]+t_height ), (250, 250, 250, 1))
 
         output.paste(img2, (0,t_height))
         output.paste(img1, (int(img1.size[0]/2),t_height))
@@ -111,7 +110,7 @@ class Bars:
 
         font = ImageFont.truetype(os.path.join(base_dir, 'resources/fonts/Comfortaa/static/Comfortaa-Bold.ttf'), t_size)
         draw.text((0,0), text, (0,0,0), font=font, spacing=1.5, align='right')
-        draw.text((img2.size[0], output.size[1]-t_height), number, (0,0,0), font=font, spacing=30, align='right')
+        # draw.text((img2.size[0], output.size[1]-t_height), number, (0,0,0), font=font, spacing=30, align='right')
 
         return output
 
