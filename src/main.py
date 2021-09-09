@@ -1,32 +1,56 @@
-# import EAN13 from barcode module
 import barcode
 from barcode.writer import ImageWriter
 import base64
 from io import BytesIO
+from PIL import Image, ImageFont, ImageDraw
 
-from PIL import Image
 
 
-upc = barcode.get_barcode_class('upca')
+class Bars:
 
-# Make sure to pass the number as string
-number = '00001000001'
+    '''
+        uses UPC sytem to generate barcodes to lable inventory in a store or a warehouse.
+        requires , 
+        - the manufacturers/suppliers number in thousands.
+        - the product number in ten thousands.
+        - a (company/shop/store) logo (optional)
+        - a (company/shop/store) name
 
-# Now, let's create an object of EAN13
-# class and pass the number
-my_code = upc(number, ImageWriter())
-text = "abc"
+    '''
 
-# Our barcode is ready. Let's save it.
-image =my_code.render(text=my_code.get_fullcode())
+    def __init__(self) -> None:
+        pass
 
-buffered = BytesIO()
-image.save(buffered, format="PNG")
-img_str = base64.b64encode(buffered.getvalue())
+    def generate(self, manufacturer_number, product_number, name=None, logo_path = None, logo_bytes=None, logo_b64 = None ):
 
-im = Image.open(BytesIO(base64.b64decode(img_str)))
-size = 800, 800
-im.thumbnail(size)
-im.show()
+        number = f"{manufacturer_number}{product_number}"
 
-# print(img_str)
+        code = self.make_upc(number)
+
+        code_b64 = self.make_b64(code)
+
+        return code_b64
+
+
+    def make_upc(self, number):
+
+        upc = barcode.get_barcode_class('upca')
+        code = upc(number, ImageWriter())
+
+        return code
+
+    def make_b64(self, image):
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue())
+        return img_str
+
+    def make_image_from_b64(self, b64):
+        im = Image.open(BytesIO(base64.b64decode(b64)))
+        return im
+
+
+
+
+
+
