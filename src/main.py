@@ -93,23 +93,27 @@ class Bars:
     def add_details_to_image(self, barcode_image, number, name, logo):
         img1 = barcode_image
         img2 = logo
-        t_size = 50
-        t_height = 40
+        t_size = 30
+        t_height = 45
+        padding = 10
+        box_width = 3
 
-        img2.thumbnail((int(img1.size[0]), img1.size[1]))
+        img2.thumbnail((int(img2.size[0]), img1.size[1]))
         img1.thumbnail((img1.size[0], img1.size[1]))
 
-        output = Image.new('RGBA', (int(img1.size[0]+img2.size[0]), img1.size[1]+t_height ), (250, 250, 250, 0))
+        output = Image.new('RGBA', (int(img1.size[0]+img2.size[0]+padding), img1.size[1]+t_height ), (250, 250, 250, 0))
 
-        output.paste(img2, (0,t_height))
-        output.paste(img1, (int(img1.size[0]/2),t_height))
+        output.paste(img2, (padding,t_height-padding))
+        output.paste(img1, (int(img1.size[0]/2),t_height-padding))
 
         draw = ImageDraw.Draw(output, 'RGBA')
+
+        draw.rectangle((0, 0, output.size[0], output.size[1]), outline=(0, 0, 0), width=box_width)
 
         text = name.upper()
 
         font = ImageFont.truetype(os.path.join(base_dir, 'resources/fonts/Comfortaa/static/Comfortaa-Bold.ttf'), t_size)
-        draw.text((0,0), text, (0,0,0), font=font, spacing=1.5, align='right')
+        draw.multiline_text((padding,padding), text, (0,0,0), font=font, spacing=1.5, align='right')
         # draw.text((img2.size[0], output.size[1]-t_height), number, (0,0,0), font=font, spacing=30, align='right')
 
         return output
